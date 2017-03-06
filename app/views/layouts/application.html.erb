@@ -6,6 +6,8 @@
 
     <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track': 'reload' %>
     <%= javascript_include_tag 'application', 'data-turbolinks-track': 'reload' %>
+    <%= javascript_include_tag 'http://localhost:8080/frontend/vendor-bundle.js', :defer => true %>
+    <%= javascript_include_tag 'http://localhost:8080/frontend/app-bundle.js', :defer => true %>
   </head>
 
   <body>
