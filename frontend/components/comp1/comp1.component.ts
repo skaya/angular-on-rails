@@ -1,12 +1,17 @@
 import { Component } from '@angular/core';
 
+require('./comp1.component.scss');
+require('./comp1.component.grid.scss');
+
+let styleUrl1 = './comp1.component.scss';
+let styleUrl2 = './comp1.component.grid.scss';
+
 let template = require('./comp1.component.html');
-let styles = require('./comp1.component.scss');
 
 @Component({
   selector: 'comp1',
   template: template,
-  styles: [ String(styles) ]
+  styleUrls: [styleUrl1, styleUrl2]
 })
 
 

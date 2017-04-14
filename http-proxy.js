@@ -15,7 +15,7 @@ var server = http.createServer(function(req, res) {
     targetUrl = req.url = req.url.slice(0);
     target = 'http://localhost:8080';
   } else {
-    target = 'http://localhost:3000';
+    target = 'http://localhost:5200';
   }
 
   console.log(

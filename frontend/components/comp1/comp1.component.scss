@@ -1,2 +1,7 @@
-.comp1 {
+@import "~stylesheets/common";
+
+comp1 {
+    display: block;
+    background: url('~images/angular-img.png') no-repeat top left;
+    h4 {color: red;}
 }

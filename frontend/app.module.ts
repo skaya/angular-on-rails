@@ -11,7 +11,7 @@ import { AppComponent }             from './components/app/app.component';
 import { Component1 }               from './components/comp1/comp1.component';
 import { Component2 }               from './components/comp2/comp2.component';
 
-// component which have to be declared
+// component that have to be declared
 let declareComponents = new dinamicDeclaration([
     AppComponent,
     Component1,

@@ -5,8 +5,7 @@ let styles = require('./comp2.component.scss');
 
 @Component({
   selector: 'comp2',
-  template: template,
-  styles: [ String(styles) ]
+  template: template
 })
 
 
