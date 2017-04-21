@@ -3,7 +3,7 @@ import { NgModule }                 from '@angular/core';
 import { FormsModule }              from '@angular/forms';
 import { HttpModule }               from '@angular/http';
 
-import { dinamicDeclaration }       from './helper.dinamicDeclaration';
+import { dynamicDeclaration }       from './helper.dynamicDeclaration';
 
 // at least one component should be in bootstraped.
 // AppComponent can be it, no metter it does something or not.
@@ -12,7 +12,7 @@ import { Component1 }               from './components/comp1/comp1.component';
 import { Component2 }               from './components/comp2/comp2.component';
 
 // component that have to be declared
-let declareComponents = new dinamicDeclaration([
+let declareComponents = new dynamicDeclaration([
     AppComponent,
     Component1,
     Component2

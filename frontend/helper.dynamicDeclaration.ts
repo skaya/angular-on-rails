@@ -1,4 +1,4 @@
-export class dinamicDeclaration {
+export class dynamicDeclaration {
   bootstrapingComponent: any[] = [];
 
   constructor(components: any[]) {
