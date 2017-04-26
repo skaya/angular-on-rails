@@ -1,14 +1,14 @@
 # Angular 2 on Rails using Webpack
-This simple application is about how to adapt Angular 2 and Ruby on Rails to get them working together. It's mostly about setting up and configuring the Frontend environment to be a part of a Ruby on Rails application. During the implementation, I ran into many questions and problems. I did a lot of research and thinking about choosing right approach and better tools, about creating more flexible and clear design of the app. So possibly this example could help someone to start using Angular 2 on Rails and save some time.
+This simple application is about how to adapt Angular 2 and Ruby on Rails to get them working together. It's mostly about setting up and configuring a Frontend environment to be a part of a Ruby on Rails application. During the implementation, I ran into many questions and problems. I did a lot of research and thinking about choosing the right approach and better tools, about creating more flexible and clear design of the app. So possibly this example could help someone to start using Angular 2 on Rails and save some time.
 
-When you start a new JS project, firstly, you need to choose a building tool. My choice was made to Webpack. There are a few ways to setup it on a Rails app. The simplest and the most popular way is to use `webpack-rails` gem (as well as `angular2-rails` gem). Nevertheless, I'll go with another approach, in which two different applications (the Backend and Frontend apps) will be served separately. The Backend app is a typical Rails application that builds static pages, can expose some API endpoints and gives JSON output. The Frontend app is an Angular 2 application that built by Webpack and running on NodeJS. Obviously, implementation of this approach needs much more work, but it's worth it, and there are some advantages:
-- NodeJS is the natural environment for JS libraries like React, Angular, etc.;
+When you start a new JS project, firstly, you need to choose a building tool. My choice was made to Webpack. There are a few ways to setup it on a Rails app. The simplest and the most popular way is to use `webpack-rails` gem (as well as `angular2-rails` gem). Nevertheless, I'll go with another approach, in which two different applications (Backend and Frontend) will be served separately. The Backend app is a typical Rails application that builds static pages, can expose some API endpoints and gives JSON output. The Frontend app is an Angular 2 application that is built by Webpack and running on NodeJS. Obviously, implementation of this approach needs much more work, but it's worth it, and there are some advantages:
+- NodeJS is a natural environment for JS libraries like React, Angular, etc.;
 - It's easy to write ES6 code in any application;
 - You don’t need to care about version compatibility of Rails and JS libraries (for example, `angular2-rails` gem requires Rails 5 and can't be used with Rails 4);
-- You'll still be able to maintain the natural behavior of an asset pipeline without messing it up with Sprockets;
+- You'll still be able to maintain the natural behavior of Asset Pipeline without messing it up with Sprockets;
 - Using the npm-based package management workflow works better and more productive if you want to leverage the latest version(s) of JS libraries;
 - Making an API enables building other clients apps what's a good idea anyway;
-- Server-side components rendering works much faster.
+- Server-side rendering of components works much faster.
 
 How to configure Webpack and work with two servers together described in the chapter ["Integrating Angular 2 with Rails"](#integrating-angular-2-with-rails). Also, the chapter ["Sparkling of Angular components"](#sparkling-of-angular-components) discloses the problem of using Angular 2 for non-SPA websites (not a Single Page Application) what is not such trivial as could be thought.
 
@@ -33,7 +33,7 @@ How to configure Webpack and work with two servers together described in the cha
 *Note*: `ruby`, `rails` and `git` have to be installed.  
 If you already have a working Rails application, go to the next chapter ["Setting up a Frontend environment"](#setting-up-a-frontend-environment).
 
-#### Creating skeleton of a Rails app
+#### Creating a skeleton of a Rails app
 For creating a new Rails application with some database, run the following:
 ```
 $ rails new rails-angular
@@ -53,7 +53,7 @@ $ git push origin master
 ```
 
 #### Prepare some data
-Run the command `$ rails generate controller pages` and use the generated file of empty controller to add a few actions:
+Run the command `$ rails generate controller pages` and use the controller's generated file to add a few actions:
 ``` ruby
 # /app/controllers/pages_controller.rb
 def home
@@ -72,8 +72,8 @@ controller: pages do
 end
 ```
 
-The final step for setting up the Rails app is creating views with some content for the actions created above (`/app/views/pages/home.html.erb`,
-`/app/views/pages/profile.html.erb`).  After that, the skeleton of Rails app
+The final step for setting up the Rails application is creating views with some content for the actions created above (`/app/views/pages/home.html.erb`,
+`/app/views/pages/profile.html.erb`).  After that, the skeleton of the Rails app
 is ready to use and can be visited on `http://localhost:3000` after running
 the local server: `rails s`.
 
@@ -126,13 +126,13 @@ Any project based on NodeJS depends on a list of packages which is managed by th
 ### Package.json
 
 #### A little theory about `package.json`
-As I mentioned above, the `package.json` contains a list of packages your project depends on. There are two ways to install a package: using the command line and listing packages namespace in the `package.json`.  
+As I mentioned above, the `package.json` contains a list of packages your project depends on. There are two ways to install a package: using the command line and listing the package namespace in the `package.json`.  
 Besides, three types of dependencies are possible:
 - *dependencies* (for production) `npm install [package-name] --save` 
 - *devDependencies* (for development and testing only) `npm install [package-name] --save-dev` 
 - *global* (for global installation)  `npm install [package-name] --global` 
 
-Some packages come from scopes. Scopes are like a namespace for `npm` modules. Scope name begins with @ symbol. Name of a scoped package is formed using the scope name with the package name following after the slash `@scope-name/package-name`. This syntax is used everywhere you need to specify a scoped package, either `package.json`, command line or require statements:
+Some packages come from scopes. Scopes are like a namespace for `npm` modules. A scope name begins with the symbol "@". A name of a scoped package is formed using the scope name with the package name following after the slash: `@scope-name/package-name`. This syntax is used everywhere you need to specify a scoped package, either the `package.json`, the command line or require statements:
 ``` console
 npm install @scope-name/package-name —save
 ```
@@ -141,7 +141,7 @@ var packageName = require(“@scope-name/package-name”)
 ```
 - - -
 #### Packages installing
-To get started you have to install `webpack` and [webpack-dev-server](https://webpack.github.io/docs/webpack-dev-server.html) both globally and in the project. The global installing is necessary to be able to use the webpack commands. The local version specifies webpack version used on a project. The small difference between installing `webpack` and `webpack-dev-server` is that local version of *webpack-dev-server* should be installed only in `devDependencies` and not in dependencies for production:
+To get started you have to install `webpack` and [webpack-dev-server](https://webpack.github.io/docs/webpack-dev-server.html) both globally and in a project. The global installing is necessary to be able to use the webpack commands. The local version specifies a webpack version used on a project. The small difference between installing `webpack` and `webpack-dev-server` is that the local version of *webpack-dev-server* should be installed only in `devDependencies` and not in dependencies for production:
 ```
 npm install webpack --global
 npm install webpack --save
@@ -149,7 +149,8 @@ npm install webpack-dev-server --global
 npm install webpack-dev-server --save-dev
 ```
 
-Each package could be installed using the command line. The other easiest option to do that is to copy all the following dependencies, paste it to your `package.json` and run `$ npm install`:
+Each package could be installed using the command line.  
+The other easiest option to do that is to copy all the following dependencies, paste it to your `package.json` and run `$ npm install`:
 ``` json
 {
   ..
@@ -191,12 +192,12 @@ Now it's time for a little information about what is all these packages and why 
 
 #### What is these packages
 Angular 2 comes with the following **required dependencies** :
-* *reflect-metadata* - for enabling dependency injection through decorators
-* *es6-shim* - library for ES6 compatibilities
-* *rxjs* - a set of libraries for reactive programming
-* *zone.js* - for implementing zones in JS. Angular 2 uses it to detect changes effectively.
+* *reflect-metadata* is a library for enabling dependency injection through decorators
+* *es6-shim* is a library for ES6 compatibilities
+* *rxjs* is a set of libraries for reactive programming
+* *zone.js* is a library for implementing zones in JS. Angular 2 uses it to detect changes effectively.
 
-Also, Angular 2 needs some *feature packages* which give an application utility capabilities. Feature packages are the bone of the Angular 2 framework that provides HTML controls, themes, data access, and various utilities. Details about the packages you can get from [angular guide](https://angular.io/docs/ts/latest/guide/npm-packages.html). I use the following feature packages:
+Also, Angular 2 needs some *feature packages* which give an application utility capabilities. The feature packages are the bone of Angular 2 framework that provides HTML controls, themes, data access, and various utilities. Details about the packages you can get from [angular guide](https://angular.io/docs/ts/latest/guide/npm-packages.html). I used the following feature packages:
 * “@angular/common"
 * "@angular/compiler"
 * "@angular/core": "^2.4.0",
@@ -205,17 +206,17 @@ Also, Angular 2 needs some *feature packages* which give an application utility 
 * "@angular/platform-browser": "^2.1.2",
 * "@angular/platform-browser-dynamic": "^2.1.2",
 
-Angular 2 is written in TypeScript but that doesn't mean you have to use it. However, it should be emphasized that TypeScript brings real Object Oriented Programming to Web Development what's really great and I love writing code in this style. Thus, in my case, TypeScript package will be installed globally and locally along with typings and tslint which is the required packages for TypeScript.
+Angular 2 is written in TypeScript but that doesn't mean you have to use it. However, it should be emphasized that TypeScript brings real Object Oriented Programming to Web Development what's really great and I love writing code in this style. Thus, in my case, TypeScript package will be installed globally and locally along with `typings` and `tslint` which is the required packages for TypeScript.
 
 All other packages are **loaders** which described below.
 
 ### Configuration files
-Three files have to be created in the root directory in order to setup TypeScript for an Angular 2 application:
+The following three files have to be created in the root directory in order to setup TypeScript for an Angular 2 application:
 * typings.json
 * tsconfig.json
 * tslint.json
 
-**typings.json** This file is used to configure TypeScript dependencies when these dependent packages are installed.
+**typings.json** It's used for configuring TypeScript dependencies.
 ``` json
 {
   "name": "angular2-on-rails",
@@ -228,7 +229,7 @@ Three files have to be created in the root directory in order to setup TypeScrip
 }
 ```
 
-**tsconfig.json** This file contains properties for configuration of a TypeScript behavior in an application.
+**tsconfig.json** It contains properties for configuration of a TypeScript behavior in an application.
 ``` json
 {
     "compilerOptions": {
@@ -250,7 +251,7 @@ Three files have to be created in the root directory in order to setup TypeScrip
 }
 ```
 
-**tslint.json** This file contains a set of rules used for checking a TypeScript code. These rules are about readability, maintainability, functionality errors and they are adjustable for personal needs.
+**tslint.json** It contains a set of rules used for checking a TypeScript code. These rules are about readability, maintainability, functionality errors and they are adjustable for personal needs.
 ``` json
 {
     "class-name": true,
@@ -335,9 +336,9 @@ Once the command has completed, a new directory named `node_modules` will appear
 
 
 ## Integrating Angular 2 with Rails
-As I mentioned at the beginner of this README, in this app I'll go with a hybrid approach using Rails and Angular applications separately. In this way Rails asset pipeline will not be mixed up with AngularJS.
+As I mentioned at the beginner of this README, in this app I'll go with a hybrid approach of using Rails and Angular applications separately. In this way Rails Asset Pipeline will not be mixed up with AngularJS.
 
-It would be better to put all Angular's files into a separate directory because Angular 2 will live regardless of Rails. In other words, instead of putting an Angular code into the Rails asset pipeline (`app/assets`), the Angular 2 app will be located in the Rails application's public directory. This way separates Angular logic from the Rails one (take a look to the file structure in the chapter ["Designing of Angular architecture on Rails"](#designing-of-angular-architecture-on-rails), my folder is called `frontend`).
+It would be better to put all Angular's files into a separate directory because Angular 2 is going to live regardless of Rails. In other words, instead of putting an Angular code into Rails Asset Pipeline (`app/assets`), a Angular 2 application will be located in a Rails public directory. This way separates Angular logic from the Rails one (take a look to the file structure in the chapter ["Designing of Angular architecture on Rails"](#designing-of-angular-architecture-on-rails), my folder is called `frontend`).
 
 `Webpack` will build all Angular files and prepare them for using on Rails. Then `Foreman` will help to run Rails and Webpack servers together with proxy server help.
 
@@ -420,7 +421,7 @@ This configuration file has three main areas:
 * the output key defines a name and a location of the compiled file(s).
 * the module loaders define loaders used in your modules (HTML, Sass, CSS, etc.)
 
-I have two entry files and two relevant output files. `vendor.ts` contains third party libraries [required for Angular 2](#what-is-these-packages) which are actually static for an application. `app.ts` file includes all developed modules and needed for them packages. This file division allows to update an application without redownloading the vendor's bundle.  
+I have two entry files and two relevant output files. `vendor.ts` contains third party libraries [required for Angular 2](#what-is-these-packages) which are actually static for an application. `app.ts` includes all developed modules and packages needed for these modules. This file division allows updating an application without redownloading the vendor's bundle.  
 As a result of the compilation, I'll get two files: `app-bundle.js` and `vendor-bundle.js`. This compiled JavaScript bundles can be simply included to Rails templates as a normal JS file:
 ```
 <%= javascript_include_tag ‘/frontend/vendor-bundle.js', :defer => true  %>
@@ -442,12 +443,12 @@ resolve: {
 }
 ```
 
-With this configuration, you'll be ready to run the webpack server `$ webpack-dev-server --config ./webpack.config.js`. To do life simpler, you can add a new script to `package.json` and use it to start the server:
+With this configuration described below, you'll be ready to run the webpack server `$ webpack-dev-server --config ./webpack.config.js`. To do life simpler, you can add a new script to `package.json` and use it to start the server:
 ``` js
 "start": "webpack-dev-server --config ./webpack.config.js" // '$ npm start' command creating
 ```
 
-Despite the fact that setuping the Angular app is not finished yet, it's possible to run the server (using the command `$ npm start`) for starting the compilation and watching the app while you'll be working with an angular environment and developing new components.
+Despite the fact that the Angular app setuping is not finished yet, it's possible to run the server (using the command `$ npm start`) for starting the compilation and watching the app while you'll be working with an angular environment and developing new components.
 
 The Terminal log should look something similar:
 ``` console
@@ -472,7 +473,7 @@ chunk    {0} app-bundle.js, app-bundle.js.map (app) 1.51 MB {1} [rendered]
 ```
 
 ### Proxy server
-To use Rails and Node servers together, a proxy server should be created. So, technically we need to run two servers (Backend and Frontend) and then proxy all Backend calls to the Backend server but on another port. The same should be done for Frontend calls. The following `http-proxy.js` script does that:
+To use Rails and Node servers together, a proxy server should be created. Technically, we need to run two servers (Backend and Frontend) and then proxy all Backend calls to the Backend server but on another port. The same should be done for Frontend calls. The following `http-proxy.js` script does that:
 ``` js
 var http = require('http');
 var httpProxy = require('http-proxy');
@@ -521,18 +522,20 @@ function addressPretty(server) {
   return 'http://' + addr.address + ':' + addr.port;
 }
 ```
-It listens for incoming HTTP requests on port `:5100` and proxies them to the port `:8080` if the request came from `/frontend` path (Angular 2 app location) or to port `:5200` for all other requests (which is backend calls).
+It listens for incoming HTTP requests on port `:5100` and proxies them to one of the following port:
+- `:8080` if the request came from `/frontend` path (Angular 2 app location) 
+- `:5200` for all other requests (which is backend calls).
 
 
 
 ### Foreman configuration
-`Foreman` is the helpful tool for running a few servers with just one command. To use it, firstly, this gem needs to be installed `$ gem install foreman`. Foreman is configurable with the file `Procfile` in the root directory. This file contains a list of processes you want to run. In my case, I need to run Rails, Webpack and Proxy servers, what is specified below:
+`Foreman` is a helpful tool for running a few servers with just one command. To use it, firstly, this gem needs to be installed `$ gem install foreman`. Foreman is configurable with the file `Procfile` in the root directory. This file contains a list of processes you want to run. In my case, I need to run Rails, Webpack and Proxy servers, what is specified below:
 ```
 js: npm start
 proxy: node http-proxy.js
 platform: bundle exec rails s
 ```
-After that, the command `$ foreman start` will be available for running my hybrid system that utilizes both the Rails and Node servers. Terminal log of the running process should look something similar:
+After that, the command `$ foreman start` will be available for running my hybrid system that utilizes both Rails and Node servers. Terminal log of the running process should look something similar:
 ``` console
 MacBook-Pro:angular2_on_rails yuliyakanapatskaya$ foreman start
 01:20:24 js.1       | started with pid 26027
@@ -566,11 +569,7 @@ MacBook-Pro:angular2_on_rails yuliyakanapatskaya$ foreman start
 01:20:36 js.1       | vendor-bundle.js.map  2.17 MB       1  [emitted]  vendor
 01:20:36 js.1       | chunk    {0} app-bundle.js, app-bundle.js.map (app) 1.51 MB {1} [rendered]
 ```
-
-
-
-
-
+  
 
 
 
@@ -590,7 +589,7 @@ MacBook-Pro:angular2_on_rails yuliyakanapatskaya$ foreman start
 ## Designing of Angular architecture on Rails
 
 ### Angular app architecture
-As I described before ("[Webpack configuration](#webpack-configuration)"), two main files are included to Rails template: 
+As I described before (["Webpack configuration"](#webpack-configuration)), two main files are included to Rails template: 
 - `vendor.ts` - This script bundles libraries required for Angular 2;
 - `app.ts` - This script bootstraps the root Angular module `app.module.ts` which contains everything else not included in `vendor.ts`.
 
@@ -627,12 +626,12 @@ import { AppService }       from './service/app/app.service';
 
 export class AppModule { }
 ```
-Pay attention to the naming convention used for Angular elements. The name of almost all Angular files includes a unique name followed by its "data type". So these names are formed according to the pattern `[name].[type].ts` (for example, `app.service.ts`, `app.component.ts`, ` app.module.ts`). This rule makes code reading easier and more clear during developing.
+Pay attention to the naming convention used for Angular elements. The name of almost all Angular files includes a unique name followed by its "data type". Suchwise these names are formed according to the pattern `[name].[type].ts` (for example, `app.service.ts`, `app.component.ts`, ` app.module.ts`). This rule makes code reading easier and more clear during developing.
 
-Also as you see from the code above (take a look to 'bootstrap' property in the `@NgModule` decorator), it's possible to bootstrap a list of components although almost all tutorials and documentations propose to bootstrap the only one root component. The single bootstrapped component needs when you develop a Single Page Application what is not applicable to me. My application is a multiple-page application with Angular components spreaded across the pages. And there are some pitfalls with using Angular 2 for this kind of apps ([Sparkling of Angular components](#sparkling-of-angular-components)).
+Also as you see from the code above (take a look to 'bootstrap' property in `@NgModule` decorator), it's possible to bootstrap a list of components although almost all tutorials and documentations propose to bootstrap the only one root component. The single bootstrapped component needs when you develop a Single Page Application what is not applicable to me. My application is a multiple-page application with Angular components spreaded across the pages. And there are some pitfalls with using Angular 2 for this kind of applications ([Sparkling of Angular components](#sparkling-of-angular-components)).
  
 Angular 2 uses component approach. It's why I recommend to serve every component into its own directory. This directory can contain a component script either alone or with all required files.
-The required files are usually template and stylesheet files which specified in `@Component` decorator. It's possible to place their code directly into a component's script as well as into a separate file using `require` statement. For me, a decision about choosing the right way is based on the code size: if the code is more than 5-10 line, I move it into a separate file. Using separate folder works well because it joins all files used only for one component and not for others.
+The required files are usually template and stylesheet files which is attached to the script using the `require` statement. It's also possible to place their code directly into `@Component` decorator. For me, a decision about choosing the right way is based on the code size: if the code takes more than 5-10 lines, I move it into a separate file. Using separate folder works well because it joins all files used only for one component and not for others.
 
 Thus the final snapshot of the app structure is the following:
 ```
@@ -674,9 +673,9 @@ rails+angular2/
 ```
 
 ### Sparkling of Angular components
-During integrating Angular 2 for Rails app, I ran into some interesting problem. The problem was about using Angular 2 within a static app that doesn't require the entire site to be rendered as a SPA (Single Page Application). Pages of my app are effectively static HTML (though they are rendered by Rails) and I needed to drop Angular components into the pages in places. There should not be routing on the Angular side at all. I needed to have a kind of mix of static content with dynamic angular components sprinkled within it. But Angular 2 revolves around the idea of all components live within the single root component. After a lot of digging, it turned out there is no clear way to implement this sprinkling.
+During integrating Angular 2 in Rails, I ran into some interesting problem. The problem was about using Angular 2 within a static app that doesn't require the entire web-site to be rendered as a SPA (Single Page Application). Pages of my app are effectively static HTMLs (though they are rendered by Rails) and I needed to drop Angular components into the pages in places. There should not be routing on  Angular side at all. I needed to have kind of mix of static content with dynamic angular components sprinkled within it. But Angular 2 revolves around the idea of all components live within the single root component. After a lot of digging, it turned out there is no clear way to implement this sprinkling.
 
-At first sight that looks possible by adding all of the components to the bootstraped array of `@NgModule` decorator which then passes to `platformBrowserDynamic()`. And that works well when all component's selectors are present on a page. However, if you don’t have all bootstrapped components on the page, you see the error `EXCEPTION: The selector “comp2" did not match any elements`. This error will be thrown when some component is not found on the page because all bootstraped components are required. At the same time, the Angular components are not rendered untill they haven't been bootstrapped.
+At first sight that looks possible by adding all components to `@NgModule.bootstrap` decorator which is then passed to `platformBrowserDynamic()`. And that works well when all component's selectors are present on a page. However, if at least one of them is not there, you see the error `EXCEPTION: The selector “comp2" did not match any elements`. This error will be thrown when a component is not found on a page because all bootstraped components are required. At the same time, an Angular component is not rendered untill it hasn't been bootstrapped.
 
 So it would be great to find a way to bootstrap components optionally. Unfortunately, Angular 2 doesn’t provide documented way to do that. Thus I had to write some helper to implement this conditional bootstrapping. This helper works with a list of all components, takes their selectors, checks whether some component is on the page using simple method `querySelector()` and then bootstraps the component if it's found.
 ``` js
@@ -708,7 +707,7 @@ export class dinamicDeclaration {
 ```
 
 
-Do the following to get a filtered list of components which could be bootstrapped with no errors:
+Here is how to use this helper to get a filtered list of components which could be bootstrapped with no errors:
 1. Import the helper to the `app.module.ts` 
 2. Create a new instance of the helper's Class.
 3. Pass a list of all components to the helper's setter
@@ -734,13 +733,13 @@ let nestedComponents: any[] = [
   ...
 })
 ```
-Pay attention that the nested components don't need to be bootstrapped, they have to be only declared. It's why I used different arrays for nested and bootstrapped component.
+Pay attention that the nested components don't need to be bootstrapped, they have to be declared only. It's why I used different arrays for nested and bootstrapped components.
 
-The one more interesting fact is that Angular 2 application must have at least one bootstrapped component otherwise the following error will be thrown `EXCEPTION: The module AppModule was bootstrapped, but it does not declare "@NgModule.bootstrap" components nor a "ngDoBootstrap" method. Please define one of these`. So if you use Angular 2 for an MPA, you shouldn't have pages without al least one Angular component. Fortunately, this problem is solved very easy by including some component to common HTML partial which will be rendered for all pages (for example, foote, header, etc.). For this purpose, I used 'app' component (`<app></app>`) that does nothing but just presented on all pages in the footer.
+The one more interesting fact is that Angular 2 application must have at least one bootstrapped component otherwise the following error will be thrown `EXCEPTION: The module AppModule was bootstrapped, but it does not declare "@NgModule.bootstrap" components nor a "ngDoBootstrap" method. Please define one of these`. So if you use Angular 2 for an MPA, you shouldn't have pages without al least one Angular component. Fortunately, this problem is solved very easy by including some component to common HTML partial which will be rendered for all pages (for example, foote, header, etc.). For this purpose, I used 'app' component (`<app></app>`) that does nothing but it's just presented on all pages in the footer.
 
 
 ### Design of Angular units
-In the end, I'll give examples of different Angular units to demonstrate how they work together. So these examples are not about how to develop the logic of components, services, etc., but about communication logic of these pieces to get a working application.
+In the end, I'll give examples of different Angular units to demonstrate how they work together. So these examples are not about how to develop a logic of components, services, etc., but about communication logic of these pieces to get a working application.
 
 #### Modules
 All developed Modules should be imported in the root module `app.module.ts` and specified in `@NgModule.imports` decorator:
@@ -764,7 +763,7 @@ import { MyModule } from './modules/myModule/myModule.module';
 That's it. Now this module ('MyModule') can be used everywhere you need it.
 
 #### Services
-To be able to use any Service in your application, this Service have to be injectable what is marked using corresponding decorator `@Injectable()` into the Service script file:
+To be able to use any Service in your application, this Service have to be injectable what is achieved using corresponding decorator `@Injectable()` into the Service file:
 ``` ts
 // frontend/services/myService.service.ts
 import { Injectable } from '@angular/core';
@@ -793,7 +792,7 @@ import { MyService } from './services/myService.service';
 
 ```
 
-To use the Service in some Component, it should be imported there and passed into Component's constructor:
+To use a Service in some Component, it should be imported there and passed into Component's constructor:
 ``` ts
 //frontend/components/comp1/comp1.component.ts
 
@@ -813,7 +812,7 @@ export class Comp1 {
 
   constructor(private _myService: MyService) {}
 
-  // this._myService will reffer to the imported service
+  // this._myService will reffer to the imported Service
   ...
 }
 
@@ -831,11 +830,11 @@ export class MyInterface {
     created_at?: Date;
 }
 ```
-To use this model, you just need to import it into any script where the model needs to be used (Components, Services, etc.).
+To use this model, you just need to import it into a script where the model needs to be used (Components, Services, etc.).
 
 #### Components
 Developed Components should be imported in `app.module.ts` and specified in `@NgModule.declarations` as well as in `@NgModule.bootstrap` if the Component is not the nested one.
-Due to the fact that I use the helper for dynamic Component bootstrapping, all Components should be passed to dynamicDeclaration function. Nested Components should be listed in `nestedComponents` array.
+Due to the fact that I use my helper for dynamic Component bootstrapping, all Components should be passed to dynamicDeclaration function. Nested Components should be listed in `nestedComponents` array only.
 ``` ts
 import { BrowserModule }       from '@angular/platform-browser';
 import { NgModule }            from '@angular/core';
@@ -955,7 +954,7 @@ export class Component1 {}
 ```
 
 #### Assets
-Below you'll see a few more examples about specifying assets into templates and stylesheets. Here I use files from `frontend/assets` folder when I usually keep shared assets.
+Below you'll see a few more examples about specifying assets into templates and stylesheets. Here I use assets files from `frontend/assets` folder when I usually keep shared assets.
 ``` css
 @import "~stylesheets/common";
 
@@ -973,3 +972,4 @@ comp1 {
 That's pretty much everything you need to know to start using Angular on any Rails application.
 
 Happy coding everyone! :)
+
